@@ -1,42 +1,60 @@
 import 'package:flutter/material.dart';
+
 import 'package:yoga_app/models/yoga_model.dart';
 import 'package:yoga_app/screens/rUread.dart';
-
+import 'package:yoga_app/services/yoga_db.dart';
+//Video No 21 Excercise - Solve The Database Inserting Problem Using Shared Preference
+// ignore: must_be_immutable
 class Startup extends StatefulWidget {
-  String yogakey;
+  String Yogakey;
   YogaSummary yogaSum;
-  Startup({required this.yogakey, required this.yogaSum});
+  Startup({required this.Yogakey, required this.yogaSum});
 
   @override
-  State<Startup> createState() => _StartupState();
+  _StartupState createState() => _StartupState();
 }
 
 class _StartupState extends State<Startup> {
   @override
+  void initState() {
+   
+    super.initState();
+    ReadAllYoga();
+  }
+
+  late List<Yoga> AllYogaWorkOuts;
+  bool isLoading =  true;
+  Future ReadAllYoga() async {
+    this.AllYogaWorkOuts =
+        await YogaDatabase.instance.readAllYoga(widget.yogaSum.YogaWorkOutName);
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return isLoading ? Scaffold(body: Container(),) : Scaffold(
       floatingActionButton: ElevatedButton(
-          onPressed: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => RUReady(
-                    yogaTableName: widget.yogaSum.YogaWorkOutName,
-                  ),
-                ));
-          },
-          style: ButtonStyle(
-              shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(5))),
-              backgroundColor: const MaterialStatePropertyAll(Colors.blue),
-              foregroundColor: const MaterialStatePropertyAll(Colors.white)),
-          child: const Padding(
+        style: ButtonStyle(
+                          backgroundColor:
+                              const MaterialStatePropertyAll(Colors.blue),
+                          foregroundColor:
+                              const MaterialStatePropertyAll(Colors.white),
+                          shape: MaterialStatePropertyAll(
+                              RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5)))),
+        onPressed: () {
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) => RUReady(yogaTableName: widget.yogaSum.YogaWorkOutName,)));
+        },
+        child: Container(
             padding: EdgeInsets.symmetric(horizontal: 30, vertical: 10),
             child: Text(
-              'START',
+              "START",
               style: TextStyle(fontSize: 20),
-            ),
-          )),
+            )),
+      ),
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
@@ -45,63 +63,63 @@ class _StartupState extends State<Startup> {
             foregroundColor: Colors.white,
             pinned: true,
             flexibleSpace: FlexibleSpaceBar(
-              title: const Text('Yoga'),
               collapseMode: CollapseMode.parallax,
+              title: Text(widget.yogaSum.YogaWorkOutName),
               background: Image.network(
-                'https://images.shiksha.com/mediadata/images/articles/1696421068php7Jh20N.jpeg',
+                widget.yogaSum.BackImg.toString(),
                 fit: BoxFit.cover,
               ),
             ),
             actions: [
-              IconButton(onPressed: () {}, icon: const Icon(Icons.thumb_up_alt))
+              IconButton(
+                  onPressed: () {}, icon: Icon(Icons.thumb_up_alt_rounded))
             ],
           ),
           SliverToBoxAdapter(
-              child: Container(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                const Row(
-                  children: [
-                    Text(
-                      '16 Mins || 23 Workouts',
-                      style: TextStyle(fontWeight: FontWeight.w400),
-                    )
-                  ],
-                ),
-                const Divider(
-                  thickness: 2,
-                ),
-                ListView.separated(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        leading: Container(
-                          margin: const EdgeInsets.only(right: 20),
-                          child: Image.network(
-                            'https://i.pinimg.com/originals/a8/6b/8e/a86b8eb24ddbe00cf3d46aeab672e538.gif',
-                            fit: BoxFit.cover,
+            child: Container(
+              padding: EdgeInsets.all(20),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        "${widget.yogaSum.TimeTaken} Mins || ${widget.yogaSum.TotalNoOfWork} Workouts",
+                        style: TextStyle(fontWeight: FontWeight.w400),
+                      )
+                    ],
+                  ),
+                  Divider(
+                    thickness: 2,
+                  ),
+                  ListView.separated(
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      separatorBuilder: (context, index) => Divider(
+                            thickness: 2,
                           ),
-                        ),
-                        title: Text(
-                          'Yoga ${index + 1}',
-                          style: const TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
-                        subtitle: Text(
-                          (index % 2 == 0) ? "00:20" : "x20",
-                          style: const TextStyle(fontSize: 15),
-                        ),
-                      );
-                    },
-                    separatorBuilder: (context, index) => const Divider(
-                          thickness: 2,
-                        ),
-                    itemCount: 20)
-              ],
+
+                      itemBuilder: (context, index) => ListTile(
+                            leading: Container(
+                                margin: EdgeInsets.only(right: 20),
+                                child: Image.network(
+                                  AllYogaWorkOuts[index].YogaImgUrl,
+                                  fit: BoxFit.cover,
+                                )),
+                            title: Text(
+                              AllYogaWorkOuts[index].YogaTitle,
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 18),
+                            ),
+                            subtitle: Text(
+                             AllYogaWorkOuts[index].Seconds ? "00:${AllYogaWorkOuts[index].SecondsOrTimes}" : "x${AllYogaWorkOuts[index].SecondsOrTimes}",
+                              style: TextStyle(fontSize: 15),
+                            ),
+                          ),
+                      itemCount: AllYogaWorkOuts.length)
+                ],
+              ),
             ),
-          ))
+          )
         ],
       ),
     );

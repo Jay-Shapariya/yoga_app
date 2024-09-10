@@ -19,12 +19,13 @@ class TimerModel with ChangeNotifier {
       notifyListeners();
       if (countdown == 0) {
         timer.cancel();
-        Navigator.push(
+        Navigator.pushReplacement(
             context,
             MaterialPageRoute(
               builder: (context) => WorkoutDate(
                 listOfYoga: allYoga,
                 yogaIndex: 0,
+         
               ),
             ));
         // print("Start your yoga");

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:yoga_app/models/timer_model.dart';
 
+// ignore: must_be_immutable
 class RUReady extends StatelessWidget {
   String yogaTableName;
   RUReady({required this.yogaTableName});
@@ -43,7 +44,7 @@ class RUReady extends StatelessWidget {
                   child: Padding(
                     padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
                     child: Text(
-                      "Next Anulong vilom",
+                      "Tip: Breath slowly while stretching yoga",
                       style:
                           TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
